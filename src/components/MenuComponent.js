@@ -1,59 +1,58 @@
-import React,{Component} from'react';
+import React from'react';
 import {Card, CardImg, CardImgOverlay, CardText, CardBody,
-  CardTitle } from 'reactstrap';
-  import DishDetail from './DishdetailComponent';
+  CardTitle, Breadcrumb, BreadcrumbItem } from 'reactstrap';
 
-
-class Menu extends Component{
-
-  constructor(props){
-    super(props);
-    this.state={
-      selectedDish:null
-     
-    }
-  }
-onDishSelect(dish){
-  this.setState({
-    selectedDish:dish
-  });
-}
+  import { Link } from 'react-router-dom';
 
 
 
-  render(){
-    const menu=this.props.dishes.map((dish)=>{
+function Menu(props){
+
+    const menu=props.dishes.map(dish=>{
       return(
         <div key={dish.id} className="col-12 col-md-5 m-1">
-                <Card onClick={()=>this.onDishSelect(dish)}>
-                  
+                <Card >
+                <Link to={`/menu/${dish.id}`} >
                       <CardImg width="100%" object src={dish.image} alt={dish.name} />
                  
                   <CardImgOverlay >
-                    <CardTitle heading>{dish.name}</CardTitle>
+                    <CardTitle heading="true">{dish.name}</CardTitle>
                    
                   </CardImgOverlay>
+                  </Link>
                 </Card>
               </div>
 
-      );
-    });
+      )
+   
+    }
 
+ )
     return(
      
       <div className="container">
+        <div className="row">
+                    <Breadcrumb>
+                        <BreadcrumbItem><Link to="/home">Home</Link></BreadcrumbItem>
+                        <BreadcrumbItem active>Menu</BreadcrumbItem>
+                    </Breadcrumb>
+                    <div className="col-12">
+                        <h3>Menu</h3>
+                        <hr />
+                    </div>                
+                </div>
          <div className="row">
        
              {menu}
       
          </div>
-         <DishDetail selectedDish= {this.state.selectedDish} />
+        
       </div>
 
 
 
     );
   }
-}
+
 export default Menu;
 
