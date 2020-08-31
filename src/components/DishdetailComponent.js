@@ -3,18 +3,19 @@ import {Card, CardImg, CardText, CardBody,CardTitle, Breadcrumb, BreadcrumbItem,
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link } from 'react-router-dom';
 import { Control, LocalForm, Errors } from 'react-redux-form';
-
+import {Loading} from './LoadingComponent';
+import { baseUrl } from '../shared/baseUrl';
 
 const maxLength = (len) => (val) => !(val) || (val.length <= len);
 const minLength = (len) => (val) => val && (val.length >= len);
 
 
 function RenderDish({dish}) {
-  if (dish!= null)
+  
       return(
       <div key={dish.id}>
    <Card >
-              <CardImg top src={dish.image} alt={dish.name} />
+              <CardImg top src={baseUrl+dish.image} alt={dish.name} />
               <CardBody>
                 <CardTitle heading="true">{dish.name}</CardTitle>
                 <CardText>{dish.description}</CardText>
@@ -24,21 +25,16 @@ function RenderDish({dish}) {
       </div>
        
       );
-  else
-      return(
-          <div></div>
-      );
+ 
 }
 
 
 
-function RenderComments({comments}) {
-  if (comments!= null){
+function RenderComments({comments, addComment, dishId}) {
+
 const com=comments.map(coms=>{
   return (
-    
   <div key={coms.id}>
-
   <li className="mb-3" >{coms.comment}</li>
              <li className="mb-3" >-- {coms.author} , {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit'}).format(new Date(Date.parse(coms.date)))}</li>
       </div>
@@ -53,13 +49,10 @@ const com=comments.map(coms=>{
           <ul className="list-unstyled">
          {com}
           </ul>
-       
+          <CommentForm dishId={dishId} addComment={addComment} />
         </div>
-      );}
-  else
-      return(
-          <div></div>
       );
+
 }
 
 class CommentForm extends Component{
@@ -75,10 +68,12 @@ class CommentForm extends Component{
       isModalOpen: !this.state.isModalOpen
     });
   }
+
   handleSubmit(values) {
+
     this.toggleModal();
-    console.log('Current State is: ' + JSON.stringify(values));
-    alert('Current State is: ' + JSON.stringify(values));
+      
+    this.props.addComment(this.props.dishId, values.Rating, values.name, values.message);
 
 }
     render(){
@@ -140,6 +135,25 @@ class CommentForm extends Component{
 }
 
 function DishDetail(props) {
+  if(props.isLoading){
+    return(
+      <div className="container">
+        <div className="row">
+        <Loading />
+        </div>
+      </div>
+    );
+  }
+  else if(props.errMess){
+      return(
+        <div className="container">
+        <div className="row">
+         <h4>{props.errMess}</h4>
+        </div>
+      </div>
+      );
+  }
+  else if(props.dish!=null){
   return (
     <div className="container">
     <div className="row">
@@ -158,12 +172,16 @@ function DishDetail(props) {
             <RenderDish dish={props.dish} />
         </div>
         <div className="col-12 col-md-5 m-1">
-            <RenderComments comments={props.comments} />
-            <CommentForm />
+            <RenderComments comments={props.comments} addComment={props.addComment}
+        dishId={props.dish.id}/>
+         
         </div>
         </div>
     </div>
-  );
+  );}
+  else
+  return <div></div>;
+  
 }
 
 export default DishDetail;
